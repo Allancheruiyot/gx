@@ -251,13 +251,12 @@ $payments = Erporder::getTotalPayments($erporder);
 <tr>
 <td>
 2. Authorized by <u>{{Erporder::getUser($erporder->reviewed_by)}}</u></td><td> Signature: ............................. </td><td>Date: <u>{{date('Y-m-d')}}</u></td></tr>
+@if($erporder->approved_by != null || $erporder->approved_by != '')
 <tr>
 <td>
-3. Approved by 
-  @if($erporder->approved_by != null || $erporder->approved_by != '')
-  <u>{{Erporder::getUser($erporder->approved_by)}}</u>
-  @endif
+3. Approved by <u>{{Erporder::getUser($erporder->approved_by)}}</u>
   </td><td> Signature: .............................</td><td> Date: <u>{{date('Y-m-d')}}</u></td></tr>
+  @endif
 <tr>
 <td>
 4. Approved by <u>{{Erporder::getUser($erporder->authorized_by)}}</u></td><td> Signature: .............................</td><td> Date: <u>{{date('Y-m-d')}}</u></td></tr>
