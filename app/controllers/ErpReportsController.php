@@ -997,13 +997,11 @@ public function net(){
 
 
 
-    public function submitpurchaseorder($id){
-
+        public function submitpurchaseorder($id){
         $erporder = Erporder::find($id);
         $erporder->prepared_by = Confide::user()->id;
         $erporder->update();
         $username = Confide::user()->username;
-
         $orders = DB::table('erporders')
                 ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')
                 ->join('items', 'erporderitems.item_id', '=', 'items.id')
@@ -1013,20 +1011,14 @@ public function net(){
                   'clients.phone as phone','clients.email as email','erporders.id as id',
                   'discount_amount','erporders.order_number as order_number','price','description')
                 ->get();
-
         $txorders = DB::table('tax_orders')
                 ->join('erporders', 'tax_orders.order_number', '=', 'erporders.order_number')
                 ->join('taxes', 'tax_orders.tax_id', '=', 'taxes.id')
                 ->where('erporders.id','=',$id)
                 ->get();
-
         $count = DB::table('tax_orders')->count();
-
         $erporder = Erporder::findorfail($id);
-
-
         $organization = Organization::find(1);
-
         $users = DB::table('roles')
         ->join('assigned_roles', 'roles.id', '=', 'assigned_roles.role_id')
         ->join('users', 'assigned_roles.user_id', '=', 'users.id')
@@ -1034,24 +1026,17 @@ public function net(){
         ->where("permission_id",32)
         ->select("users.id","email","username")
         ->get();
-
         $key = md5(uniqid());
-
         foreach ($users as $user) {
-
-        Notification::notifyUser($user->id,"Hello, Purchase order ".$erporder->order_number." needs to be reviewed!","review purchase order","erppurchases/notifyshow/".$key."/".$user->id."/".$id,$key);
-
+        Notification::notifyUser($user->id,"Hello, Purchase order ".$erporder->order_number." needs to be authorized!","review purchase order","erppurchases/notifyshow/".$key."/".$user->id."/".$id,$key);
         /*$email = $user->email;
-
         $send_mail = Mail::send('emails.submitpurchase', array('name' => $user->username, 'username' => $username,'orders' => $orders,'txorders' => $txorders,'count' => $count,'erporder' => $erporder,'organization' => $organization,'id' => $id), function($message) use($email)
         {   
             $message->from('info@gx.co.ke', 'Gas Express');
             $message->to($email, 'Gas Express')->subject('Purchase Order Approval!');
-
     
         });*/
         }
-
         Audit::logaudit('Purchase Order', 'submit purchase order for review', 'submitted purchase order, order number '.$erporder->order_number.' for review in the system');
     
         return Redirect::to('erppurchases/show/'.$id)->with('notice', 'Successfully submited approval');
@@ -1060,12 +1045,10 @@ public function net(){
 
 
     public function authorizepurchaseorder($id){
-
         $erporder = Erporder::find($id);
         $erporder->authorized_by = Confide::user()->id;
         $erporder->update();
         $username = Confide::user()->username;
-
         $orders = DB::table('erporders')
                 ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')
                 ->join('items', 'erporderitems.item_id', '=', 'items.id')
@@ -1075,20 +1058,14 @@ public function net(){
                   'clients.phone as phone','clients.email as email','erporders.id as id',
                   'discount_amount','erporders.order_number as order_number','price','description')
                 ->get();
-
         $txorders = DB::table('tax_orders')
                 ->join('erporders', 'tax_orders.order_number', '=', 'erporders.order_number')
                 ->join('taxes', 'tax_orders.tax_id', '=', 'taxes.id')
                 ->where('erporders.id','=',$id)
                 ->get();
-
         $count = DB::table('tax_orders')->count();
-
         $erporder = Erporder::findorfail($id);
-
-
         $organization = Organization::find(1);
-
         $users = DB::table('roles')
         ->join('assigned_roles', 'roles.id', '=', 'assigned_roles.role_id')
         ->join('users', 'assigned_roles.user_id', '=', 'users.id')
@@ -1096,40 +1073,29 @@ public function net(){
         ->where("permission_id",49)
         ->select("users.id","email","username")
         ->get();
-
         $key = md5(uniqid());
-
-
         foreach ($users as $user) {
             # code...
        
-        Notification::notifyUser($user->id,"Hello, Purchase order ".$erporder->order_number." has successfully been authorized!","view purchase order","erppurchases/notifyshow/".$key."/".$user->id."/".$id,$key);
-
+        Notification::notifyUser($user->id,"Hello, Purchase order ".$erporder->order_number." has successfully been approved!","view purchase order","erppurchases/notifyshow/".$key."/".$user->id."/".$id,$key);
         }
         /*$send_mail = Mail::send('emails.authorizepurchase', array('name' => 'Victor Kotonya', 'username' => $username,'orders' => $orders,'txorders' => $txorders,'count' => $count,'erporder' => $erporder,'organization' => $organization,'id' => $id), function($message)
         {   
             $message->from('info@gx.co.ke', 'Gas Express');
             $message->to('wangoken2@gmail.com', 'Gas Express')->subject('Purchase Order Authorization!');
-
     
         });*/
-
         Audit::logaudit('Purchase Order', 'authorized purchase order', 'authorized purchase order, order number '.$erporder->order_number.' in the system');
     
         return Redirect::to('erppurchases/show/'.$id)->with('notice', 'Successfully authorized purchase order');
         
     }
 
-    public function reviewpurchaseorder($id){
-
+    public function approvepurchaseorder($id){
         $erporder = Erporder::find($id);
-        if($erporder->prepared_by == null || $erporder->prepared_by == ""){
-           $erporder->prepared_by = Confide::user()->id; 
-        }
-        $erporder->reviewed_by = Confide::user()->id;
+        $erporder->approved_by = Confide::user()->id;
         $erporder->update();
         $username = Confide::user()->username;
-
         $orders = DB::table('erporders')
                 ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')
                 ->join('items', 'erporderitems.item_id', '=', 'items.id')
@@ -1139,46 +1105,81 @@ public function net(){
                   'clients.phone as phone','clients.email as email','erporders.id as id',
                   'discount_amount','erporders.order_number as order_number','price','description')
                 ->get();
-
         $txorders = DB::table('tax_orders')
                 ->join('erporders', 'tax_orders.order_number', '=', 'erporders.order_number')
                 ->join('taxes', 'tax_orders.tax_id', '=', 'taxes.id')
                 ->where('erporders.id','=',$id)
                 ->get();
-
         $count = DB::table('tax_orders')->count();
-
         $erporder = Erporder::findorfail($id);
-
-
         $organization = Organization::find(1);
-
+        $users = DB::table('roles')
+        ->join('assigned_roles', 'roles.id', '=', 'assigned_roles.role_id')
+        ->join('users', 'assigned_roles.user_id', '=', 'users.id')
+        ->join('permission_role', 'roles.id', '=', 'permission_role.role_id') 
+        ->where("permission_id",143)
+        ->select("users.id","email","username")
+        ->get();
+        $key = md5(uniqid());
+        foreach ($users as $user) {
+            # code...
+       
+        Notification::notifyUser($user->id,"Hello, Purchase order ".$erporder->order_number." needs a final approval!","authorize purchase order","erppurchases/notifyshow/".$key."/".$user->id."/".$id,$key);
+        }
+        /*$send_mail = Mail::send('emails.authorizepurchase', array('name' => 'Victor Kotonya', 'username' => $username,'orders' => $orders,'txorders' => $txorders,'count' => $count,'erporder' => $erporder,'organization' => $organization,'id' => $id), function($message)
+        {   
+            $message->from('info@gx.co.ke', 'Gas Express');
+            $message->to('wangoken2@gmail.com', 'Gas Express')->subject('Purchase Order Authorization!');
+    
+        });*/
+        Audit::logaudit('Purchase Order', 'authorized purchase order', 'authorized purchase order, order number '.$erporder->order_number.' in the system');
+    
+        return Redirect::to('erppurchases/show/'.$id)->with('notice', 'Successfully authorized purchase order');
+        
+    }
+    
+    public function reviewpurchaseorder($id){
+        $erporder = Erporder::find($id);
+        if($erporder->prepared_by == null || $erporder->prepared_by == ""){
+           $erporder->prepared_by = Confide::user()->id; 
+        }
+        $erporder->reviewed_by = Confide::user()->id;
+        $erporder->update();
+        $username = Confide::user()->username;
+        $orders = DB::table('erporders')
+                ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')
+                ->join('items', 'erporderitems.item_id', '=', 'items.id')
+                ->join('clients', 'erporders.client_id', '=', 'clients.id')
+                ->where('erporders.id','=',$id)
+                ->select('clients.name as client','items.item_make as item','quantity','clients.address as address',
+                  'clients.phone as phone','clients.email as email','erporders.id as id',
+                  'discount_amount','erporders.order_number as order_number','price','description')
+                ->get();
+        $txorders = DB::table('tax_orders')
+                ->join('erporders', 'tax_orders.order_number', '=', 'erporders.order_number')
+                ->join('taxes', 'tax_orders.tax_id', '=', 'taxes.id')
+                ->where('erporders.id','=',$id)
+                ->get();
+        $count = DB::table('tax_orders')->count();
+        $erporder = Erporder::findorfail($id);
+        $organization = Organization::find(1);
         $users = DB::table('roles')
         ->join('assigned_roles', 'roles.id', '=', 'assigned_roles.role_id')
         ->join('users', 'assigned_roles.user_id', '=', 'users.id')
         ->join('permission_role', 'roles.id', '=', 'permission_role.role_id') 
         ->select("users.id","email","username")
         ->where("permission_id",31)->get();
-
         $key = md5(uniqid());
-
         foreach ($users as $user) {
-
-        Notification::notifyUser($user->id,"Hello, Purchase order ".$erporder->order_number." needs to be authorized!","authorize purchase order","erppurchases/notifyshow/".$key."/".$user->id."/".$id,$key);
-
+        Notification::notifyUser($user->id,"Hello, Purchase order ".$erporder->order_number." needs to be approved!","approve purchase order","erppurchases/notifyshow/".$key."/".$user->id."/".$id,$key);
         /*$email = $user->email;
-
         $send_mail = Mail::send('emails.reviewpurchase', array('name' => $user->username, 'username' => $username,'orders' => $orders,'txorders' => $txorders,'count' => $count,'erporder' => $erporder,'organization' => $organization,'id' => $id), function($message) use($email)
         {   
             $message->from('info@gx.co.ke', 'Gas Express');
             $message->to($email, 'Gas Express')->subject('Purchase Order Authorization!');
-
     
         });*/
     }
-
-
-
     Audit::logaudit('Purchase Order', 'reviewed purchase order and submitted for authorization', 'reviewed purchase order, order number '.$erporder->order_number.' and submitted it for authorization in the system');
     
         return Redirect::to('erppurchases/show/'.$id)->with('notice', 'Successfully reviewed purchase order');

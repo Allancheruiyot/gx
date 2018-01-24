@@ -4240,6 +4240,7 @@ Route::get('email/send_account', 'ErpReportsController@sendMail_account');
 Route::get('email/send_merged','ErpReportsController@sendMail_MergedReport');
 
 Route::get('authorizepurchaseorder/{id}','ErpReportsController@authorizepurchaseorder');
+Route::get('approvepurchaseorder/{id}','ErpReportsController@approvepurchaseorder');
 Route::get('reviewpurchaseorder/{id}','ErpReportsController@reviewpurchaseorder');
 Route::get('submitpurchaseorder/{id}','ErpReportsController@submitpurchaseorder');
 

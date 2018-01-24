@@ -73,9 +73,11 @@
                     @elseif($notification->type == 'stock')
                     <li><a href="{{URL::to($notification->link)}}">Approve Stock</a></li>
                     @elseif($notification->type == 'review purchase order')
-                    <li><a href="{{URL::to($notification->link)}}">Review Purchase Order</a></li>
-                    @elseif($notification->type == 'authorize purchase order')
                     <li><a href="{{URL::to($notification->link)}}">Authorize Purchase Order</a></li>
+                    @elseif($notification->type == 'approve purchase order')
+                    <li><a href="{{URL::to($notification->link)}}">First Level Approval</a></li>
+                    @elseif($notification->type == 'authorize purchase order')
+                    <li><a href="{{URL::to($notification->link)}}">Final Approval</a></li>
                     @elseif($notification->type == 'view purchase order')
                     <li><a href="{{URL::to($notification->link)}}">View Purchase Order</a></li>
                     @elseif($notification->type == 'cancel sale order')
@@ -115,9 +117,11 @@
                     @elseif($notification->type == 'stock')
                     <li><a href="{{URL::to($notification->link)}}">Approve Stock</a></li>
                     @elseif($notification->type == 'review purchase order')
-                    <li><a href="{{URL::to($notification->link)}}">Review Purchase Order</a></li>
-                    @elseif($notification->type == 'authorize purchase order')
                     <li><a href="{{URL::to($notification->link)}}">Authorize Purchase Order</a></li>
+                    @elseif($notification->type == 'approve purchase order')
+                    <li><a href="{{URL::to($notification->link)}}">First Level Approval</a></li>
+                    @elseif($notification->type == 'authorize purchase order')
+                    <li><a href="{{URL::to($notification->link)}}">Final Approval</a></li>
                     @elseif($notification->type == 'view purchase order')
                     <li><a href="{{URL::to($notification->link)}}">View Purchase Order</a></li>
                     @elseif($notification->type == 'cancel sale order')

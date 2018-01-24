@@ -125,17 +125,22 @@ $(document).ready(function(){
     @endif
     @if(Entrust::can('review_purchase_order'))
     @if($order->reviewed_by == null || $order->reviewed_by == "")
-    <a href="{{URL::to('reviewpurchaseorder/'.$order->id)}}" class="btn btn-warning"> Review Purchase Order</a> 
+    <a href="{{URL::to('reviewpurchaseorder/'.$order->id)}}" class="btn btn-warning"> Authorize Purchase Order</a> 
+    @endif
+    @endif
+    @if(Entrust::can('approve_purchase_order'))
+    @if(($order->reviewed_by > 0) && ($order->approved_by == null || $order->approved_by == ""))
+    <a href="{{URL::to('approvepurchaseorder/'.$order->id)}}" class="btn btn-danger"> First Level Approval</a> 
     @endif
     @endif
     @if(Entrust::can('authorize_purchase_order'))
-    @if(($order->reviewed_by > 0) && ($order->authorized_by == null || $order->authorized_by == ""))
-    <a href="{{URL::to('authorizepurchaseorder/'.$order->id)}}" class="btn btn-danger"> Authorize Purchase Order</a> 
+    @if(($order->reviewed_by > 0) && ($order->approved_by > 0) && ($order->authorized_by == null || $order->authorized_by == ""))
+    <a href="{{URL::to('authorizepurchaseorder/'.$order->id)}}" class="btn btn-primary"> Final Approval</a> 
     @endif
     @endif
     
     </div>
-</div>
+    </div>
 
 <div class="row">
 	<div class="col-lg-12">
