@@ -85,7 +85,7 @@ img#watermark{
 
 <body>
 <!--     <img src="{{ asset('public/uploads/logo/ADmzyppq2eza.png') }}" class="watermark"> -->
-<div class="content">
+<div class="content" style="margin-top:-100px;">
 
 <div class="row">
   <div class="col-lg-12">
