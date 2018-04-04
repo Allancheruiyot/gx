@@ -120,7 +120,7 @@ class Client extends \Eloquent {
                  ->where('clients.id',$id)
                  ->where('erporders.type','=','sales')
                  ->where('erporders.status','!=','cancelled') 
-                 ->where('erporders.date',$today)   
+                 ->whereDate('erporders.created_at','=',$today)   
                  ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
                  ->pluck('total');
       }
@@ -128,7 +128,7 @@ class Client extends \Eloquent {
           $order = DB::table('erporders')
                  ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
                  ->join('clients','erporders.client_id','=','clients.id')     
-                 ->where('erporders.date',$today)         
+                 ->whereDate('erporders.created_at','=',$today)         
                  ->where('clients.id',$id) ->selectRaw('SUM(price * quantity)as total')
                  ->pluck('total');
                
@@ -148,8 +148,8 @@ class Client extends \Eloquent {
  * BALANCES <= 30 DAYS
  */
 public static function due30($id){
-      $from = date('Y-m-d', strtotime('-30 days'));
-      $to = date('Y-m-d', strtotime('-1 day'));
+      $from = date('Y-m-d 00:00:00', strtotime('-30 days'));
+      $to = date('Y-m-d 23:59:59', strtotime('-1 day'));
 
       $client = Client::find($id);
       $order = 0;
@@ -161,7 +161,7 @@ public static function due30($id){
                  ->where('clients.id',$id)
                  ->where('erporders.type','=','sales')
                  ->where('erporders.status','!=','cancelled')  
-                 ->whereBetween('erporders.date', array($from, $to)) 
+                 ->whereBetween('erporders.created_at', array($from, $to)) 
                  ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
                  ->pluck('total');
       }
@@ -169,7 +169,7 @@ public static function due30($id){
           $order = DB::table('erporders')
                  ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
                  ->join('clients','erporders.client_id','=','clients.id') 
-                 ->whereBetween('erporders.date', array($from, $to)) 
+                 ->whereBetween('erporders.created_at', array($from, $to)) 
                  ->where('clients.id',$id) ->selectRaw('SUM(price * quantity)as total')
                  ->pluck('total');
                
@@ -178,7 +178,7 @@ public static function due30($id){
       $paid = DB::table('clients')
              ->join('payments','clients.id','=','payments.client_id')
              ->where('clients.id',$id) 
-             ->whereBetween('payments.payment_date', array($from, $to)) 
+             ->whereBetween('payments.created_at', array($from, $to)) 
              ->selectRaw('COALESCE(SUM(amount_paid),0) as due')
              ->pluck('due');
 
@@ -189,8 +189,8 @@ public static function due30($id){
    * BALANCES 31 <= 60
    */
   public static function due60($id){
-      $from = date('Y-m-d', strtotime('-60 days'));
-      $to = date('Y-m-d', strtotime('-31 days'));
+      $from = date('Y-m-d 00:00:00', strtotime('-60 days'));
+      $to   = date('Y-m-d 23:59:59', strtotime('-31 days'));
 
       $client = Client::find($id);
       $order = 0;
@@ -202,7 +202,7 @@ public static function due30($id){
                  ->where('clients.id',$id)
                  ->where('erporders.type','=','sales')
                  ->where('erporders.status','!=','cancelled')  
-                 ->whereBetween('erporders.date', array($from, $to)) 
+                 ->whereBetween('erporders.created_at', array($from, $to)) 
                  ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
                  ->pluck('total');
       }
@@ -210,7 +210,7 @@ public static function due30($id){
           $order = DB::table('erporders')
                  ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
                  ->join('clients','erporders.client_id','=','clients.id')           
-                 ->whereBetween('erporders.date', array($from, $to)) 
+                 ->whereBetween('erporders.created_at', array($from, $to)) 
                  ->where('clients.id',$id) ->selectRaw('SUM(price * quantity)as total')
                  ->pluck('total');
                
@@ -219,7 +219,7 @@ public static function due30($id){
       $paid = DB::table('clients')
              ->join('payments','clients.id','=','payments.client_id')
              ->where('clients.id',$id) 
-             ->whereBetween('payments.payment_date', array($from, $to)) 
+             ->whereBetween('payments.created_at', array($from, $to)) 
              ->selectRaw('COALESCE(SUM(amount_paid),0) as due')
              ->pluck('due');
 
@@ -231,8 +231,8 @@ public static function due30($id){
    * BALANCES 61 <= 90
    */
   public static function due90($id){
-      $from = date('Y-m-d', strtotime('-90 days'));
-      $to = date('Y-m-d', strtotime('-61 days'));
+      $from = date('Y-m-d 00:00:00', strtotime('-90 days'));
+      $to = date('Y-m-d 23:59:59', strtotime('-61 days'));
 
       $client = Client::find($id);
       $order = 0;
@@ -244,7 +244,7 @@ public static function due30($id){
                  ->where('clients.id',$id)
                  ->where('erporders.type','=','sales')
                  ->where('erporders.status','!=','cancelled') 
-                 ->whereBetween('erporders.date', array($from, $to))   
+                 ->whereBetween('erporders.created_at', array($from, $to))   
                  ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
                  ->pluck('total');
       }
@@ -252,7 +252,7 @@ public static function due30($id){
           $order = DB::table('erporders')
                  ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
                  ->join('clients','erporders.client_id','=','clients.id')     
-                 ->whereBetween('erporders.date', array($from, $to))       
+                 ->whereBetween('erporders.created_at', array($from, $to))       
                  ->where('clients.id',$id) ->selectRaw('SUM(price * quantity)as total')
                  ->pluck('total');
                
@@ -261,7 +261,7 @@ public static function due30($id){
       $paid = DB::table('clients')
              ->join('payments','clients.id','=','payments.client_id')
              ->where('clients.id',$id) 
-             ->whereBetween('payments.payment_date', array($from, $to)) 
+             ->whereBetween('payments.created_at', array($from, $to)) 
              ->selectRaw('COALESCE(SUM(amount_paid),0) as due')
              ->pluck('due');
 
@@ -285,7 +285,7 @@ public static function due30($id){
                  ->where('clients.id',$id)
                  ->where('erporders.type','=','sales')
                  ->where('erporders.status','!=','cancelled') 
-                 ->where('erporders.date','<',$date)   
+                 ->whereDate('erporders.created_at','<',$date)   
                  ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
                  ->pluck('total');
       }
@@ -293,7 +293,7 @@ public static function due30($id){
           $order = DB::table('erporders')
                  ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
                  ->join('clients','erporders.client_id','=','clients.id')     
-                 ->where('erporders.date','<',$date)         
+                 ->whereDate('erporders.created_at','<',$date)         
                  ->where('clients.id',$id) ->selectRaw('SUM(price * quantity)as total')
                  ->pluck('total');
                
