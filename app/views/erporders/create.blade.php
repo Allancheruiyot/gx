@@ -81,7 +81,7 @@ request.send();
                         <label for="username">Date</label>
                         <div class="right-inner-addon ">
                         <i class="glyphicon glyphicon-calendar"></i>
-                        <input class="form-control datepicker"  readonly="readonly" placeholder="" type="text" name="date" id="date" value="{{{Input::old('date')}}}">
+                        <input class="form-control datepicker80"  readonly="readonly" placeholder="" type="text" name="date" id="date" value="{{{Input::old('date')}}}">
                         </div>
           </div>
 
@@ -141,49 +141,52 @@ $(document).ready(function(){
 
     $('#period').keyup(function(){
     //alert($('#weekends').val());
-    
-       var date = new Date($("#date").val()),
-           days = parseInt($("#period").val(), 10);
-
-        date.setDate(date.getDate());
-
-        if(!isNaN(date.getTime())){
-            date.setDate(date.getDate() + days);
-
-            $("#credit_period").val(formatDate(date));
-        } 
+       var nextMonth = addMonths(new Date($('#date').val()), parseInt($('#period').val()));
+       $('#credit_period').val($.date(new Date(Date.parse($('#date').val()))));
+       //alert($.date(new Date(Date.parse($('#date').val()))));
          
       });
 
     $('#date').change(function(){
     //alert($('#weekends').val());
     
-       var date = new Date($("#date").val()),
-           days = parseInt($("#period").val(), 10);
-
-        date.setDate(date.getDate());
-
-        if(!isNaN(date.getTime())){
-            date.setDate(date.getDate() + days);
-
-            $("#credit_period").val(formatDate(date));
-        } 
+       var nextMonth = addMonths(new Date($('#start_date').val()), parseInt($('#period').val()));
+       $('#credit_period').val($.date(new Date(Date.parse($('#date').val()))));
          
       });
 
-    function formatDate(date) {
+    function isLeapYear(year) { 
+    return (((year % 4 === 0) && (year % 100 !== 0)) || (year % 400 === 0)); 
+}
+
+function getDaysInMonth(year, month) {
+    return [31, (isLeapYear(year) ? 29 : 28), 31, 30, 31, 30, 31, 31, 30, 31, 30, 31][month];
+}
+
+function addMonths(date, value) {
     var d = new Date(date),
-        month = '' + (d.getMonth() + 1),
-        day = '' + d.getDate(),
-        year = d.getFullYear();
-
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-
-    return [year, month, day].join('-');
+        n = date.getDate();
+    d.setDate(1);
+    d.setMonth(d.getMonth() + value);
+    d.setDate(Math.min(n, getDaysInMonth(d.getFullYear(), d.getMonth())));
+    return d;
 }
       
-       
+    $.date = function(dateObject) {
+    var d = new Date(dateObject);
+    var day = d.getDate();
+    var month = d.getMonth() + 1 + parseInt($('#period').val());
+    var year = d.getFullYear();
+    if (day < 10) {
+        day = "0" + day;
+    }
+    if (month < 10) {
+        month = "0" + month;
+    }
+    var date = day + "/" + month + "/" + year;
+
+    return date;
+};
 
     });
 

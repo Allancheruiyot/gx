@@ -74,6 +74,9 @@ $(document).ready(function() {
       <font color="red"><i>All fields marked with * are mandatory</i></font><br>
       <div class="col-lg-12">
 
+        <input type="hidden" name="date" id="date" class="form-control" required value="{{Session::get('erporder')['date']}}">
+        <input type="hidden" name="credit_period" id="credit_period" class="form-control" required value="{{Session::get('erporder')['credit_period']}}">
+
 
         <div class="form-group ">
             <label>Item</label><span style="color:red">*</span> :

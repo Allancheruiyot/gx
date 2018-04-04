@@ -142,6 +142,17 @@ $('.datepicker21').datepicker({
 });
 </script>
 
+
+<script type="text/javascript">
+$(function(){
+$('.datepicker80').datepicker({
+    format: "dd/mm/yyyy",
+   
+    autoclose: true
+});
+});
+</script>
+
 <script type="text/javascript">
 $(function(){
 $('.datepicker22').datepicker({
