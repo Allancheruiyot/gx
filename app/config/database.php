@@ -58,7 +58,7 @@ return array(
 			'host'      => 'localhost',
 			'database'  => 'gx',
 			'username'  => 'root',
-			'password'  => '',
+			'password'  => 'mysql',
 			'port' => '3306',
 			'charset'   => 'utf8',
 			'collation' => 'utf8_unicode_ci',
