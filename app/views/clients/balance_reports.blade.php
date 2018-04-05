@@ -161,6 +161,7 @@
 						@endforeach
               <tr class="totals">
                 <td>TOTALS</td>
+                <td> </td>
                 <!-- <td align="center">{{ asMoney($client->percentage_discount) }}</td> -->
                 <td> {{ asMoney($dueTodayTotal) }} </td>
                 <td> {{ asMoney($due30Total) }} </td>
