@@ -140,8 +140,7 @@ body {
         <td> {{ $expense->date }}</td>
         <td> {{ $expense->name }}</td>        
         <td> {{ $expense->type }}</td>
-        <td align="right"> {{ asMoney($expense->amount) }}</td>
-        <!-- <td> {{ $expense->account->name }}</td> -->        
+        <td align="right"> {{ asMoney($expense->amount) }}</td>     
         </tr>
       <?php $i++; $total=$total + $expense['amount'];?>
    
