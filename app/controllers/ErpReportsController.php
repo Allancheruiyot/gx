@@ -2482,6 +2482,62 @@ public function sendMail_net(){
     return $send_mail;
     }
 
+    public function sendMail_Balances(){
+        
+    $fileName = 'Client Balances.pdf';
+
+    $filePath = 'app/views/temp/';
+
+    $clients = Client::where('type', 'Customer')->get();
+
+        $total_payment= DB::table('payments')
+                    ->join('clients', 'payments.client_id', '=', 'clients.id')
+                    ->where('clients.type','=','Customer')
+                    ->where('payments.payment_date', date('Y-m-d'))
+                    ->select(DB::raw('COALESCE(SUM(amount_paid),0) as amount_paid'))                
+                    ->first();
+
+        $total_monthly = DB::table('payments')
+                    ->join('clients', 'payments.client_id', '=', 'clients.id')
+                    ->where('clients.type','=','Customer')
+                    ->whereBetween('payments.payment_date', array(date('Y-m-d', strtotime('-1 month')), date('Y-m-d')))
+                    ->select(DB::raw('COALESCE(SUM(amount_paid),0) as amount_paid'))                
+                    ->first();
+
+        $total_sales_todate = DB::table('erporders')
+                    ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')
+                    ->where('erporders.type','=','sales')                
+                    ->select(DB::raw('COALESCE(SUM(quantity*price),0) as total_sales'))               
+                    ->first();
+
+        $discount_amount_todate = DB::table('erporders')
+                    ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')               
+                    ->select(DB::raw('COALESCE(SUM(discount_amount),0) as discount_amount'))             
+                    ->first();
+
+        $due = ($total_sales_todate->total_sales-$discount_amount_todate->discount_amount)-($total_payment->amount_paid);
+
+        $pdf = PDF::loadView('clients.balance_reports', compact('clients', 'total_payment', 'total_monthly', 'due'))->setPaper('a4', 'landscape');
+
+    //return $pdf->stream('Sales Reports');
+
+    $pdf->save($filePath.$fileName);
+
+    $send_mail = Mail::send('emails.welcome', array('key' => 'value'), function($message) use ($filePath,$fileName)
+    {   
+    $message->from('info@gx.co.ke', 'Gas Express');
+    $message->to('victor.kotonya@gx.co.ke', 'Victor Kotonya')->cc('victor.kotonya@gmail.com', 'Victor Kotonya')->cc('chrispus.cheruiyot@lixnet.net', 'Crispus Cheruiyot')->cc('wangoken2@gmail.com', 'Ken Wango')->subject('Daily Net Profit Report!');
+    //$message->to('chrispus.cheruiyot@lixnet.net', 'Crispus Chevarvar')->subject('Daily Sales Report!');
+    $message->attach($filePath.$fileName);
+
+    
+});
+
+   unlink($filePath.$fileName);
+   echo 'Client Balances!';
+    return $send_mail;
+    }
+
     public function sendMail_morning_net(){
         
     $fileName = 'Net Profit Report.pdf';

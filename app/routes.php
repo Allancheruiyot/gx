@@ -4238,6 +4238,7 @@ Route::get('email/send_stock', 'ErpReportsController@sendMail_stock');
 Route::get('email/send_morning_stock', 'ErpReportsController@sendMail_morning_stock');
 Route::get('email/send_account', 'ErpReportsController@sendMail_account');
 Route::get('email/send_merged','ErpReportsController@sendMail_MergedReport');
+Route::get('email/send_balances','ErpReportsController@sendMail_Balances');
 
 Route::get('authorizepurchaseorder/{id}','ErpReportsController@authorizepurchaseorder');
 Route::get('approvepurchaseorder/{id}','ErpReportsController@approvepurchaseorder');
