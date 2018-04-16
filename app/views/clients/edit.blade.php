@@ -122,6 +122,10 @@
             </select>
         </div>
 
+        <div class="form-group">
+            <label for="username">Credit Period:</label>
+            <input class="form-control" placeholder="" type="text" name="credit_period" id="credit_period" value="{{$client->credit_period}}" required>
+        </div>
 
         <!-- <div class="form-group" id="percentage_discount">
         <div class="form-group">

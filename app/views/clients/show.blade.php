@@ -85,6 +85,9 @@ function asMoney($value) {
        <td>Credit Limit</td><td>{{number_format($client->credit_limit,2)}}</td>
      </tr>
      <tr>
+       <td>Credit Period</td><td>{{$client->credit_period}} days</td>
+     </tr>
+     <tr>
        <td>Type</td><td>{{$client->type}}</td>
      </tr>
 

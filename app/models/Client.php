@@ -11,7 +11,7 @@ class Client extends \Eloquent {
 		 'mobile_phone' => 'unique:clients,contact_person_phone',
 		 'office_phone' => 'unique:clients,phone',
      'credit_limit' => 'required',
-
+     'credit_period' => 'required',
 	];
 
     public static function rolesUpdate($id)
@@ -23,7 +23,8 @@ class Client extends \Eloquent {
 		 'type' => 'required',
 		 'mobile_phone' => 'unique:clients,contact_person_phone,' . $id,
 		 'office_phone' => 'unique:clients,phone,' . $id,
-     'credit_limit' => 'required'
+     'credit_limit' => 'required',
+     'credit_period' => 'required'
         );
     }
 
@@ -35,7 +36,8 @@ class Client extends \Eloquent {
         'email_personal.unique'=>'That office email already exists!',
         'mobile_phone.unique'=>'That mobile number already exists!',
         'office_phone.unique'=>'That office mobile already exists!',
-        'credit_limit.required'=>'Please insert credit limit!'
+        'credit_limit.required'=>'Please insert credit limit!',
+        'credit_period.required'=>'Please insert credit period!'
     );
 
 	// Don't forget to fill this array

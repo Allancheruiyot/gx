@@ -77,6 +77,7 @@ class ClientsController extends \BaseController {
 		$client->category = Input::get('category');
 		$client->balance = Input::get('balance');
 		$client->credit_limit = str_replace(',','',Input::get('credit_limit'));
+		$client->credit_period = str_replace(',','',Input::get('credit_period'));
 		/*$client->percentage_discount = Input::get('percentage_discount');*/
 		$client->save();
 
@@ -237,6 +238,7 @@ class ClientsController extends \BaseController {
 		$client->category = Input::get('category');
 		$client->balance = Input::get('balance');
 		$client->credit_limit = str_replace(',','',Input::get('credit_limit'));
+		$client->credit_period = str_replace(',','',Input::get('credit_period'));
 		/*$client->percentage_discount = Input::get('percentage_discount');*/
 		// $client->save();
 
