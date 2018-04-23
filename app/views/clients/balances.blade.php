@@ -55,16 +55,19 @@
     					<?php $count = 1; ?>
 						@foreach($clients as $client)
 						@if(Client::due($client->id) > 0)
+            <?php
+              $total = Client::dueToday($client->id) + Client::due30($client->id) + Client::due60($client->id) + Client::due90($client->id) + Client::due91($client->id);
+              ?>
 						<tr>
 							<td>{{ $count }}</td>
 							<td>{{ $client->name }}</td>
 							<!-- <td align="center">{{ asMoney($client->percentage_discount) }}</td> -->
-              <td align="right"> {{ Client::dueToday($client->id)}} </td>
-              <td align="right"> {{ Client::due30($client->id)}} </td>
-              <td align="right"> {{ Client::due60($client->id)}} </td>
-              <td align="right"> {{ Client::due90($client->id)}} </td>
-              <td align="right"> {{ Client::due91($client->id)}} </td>
-							<td align="right"> {{ Client::due($client->id)}} </td>
+              <td align="right"> {{ number_format(Client::dueToday($client->id),2)}} </td>
+              <td align="right"> {{ number_format(Client::due30($client->id),2)}} </td>
+              <td align="right"> {{ number_format(Client::due60($client->id),2)}} </td>
+              <td align="right"> {{ number_format(Client::due90($client->id),2)}} </td>
+              <td align="right"> {{ number_format(Client::due91($client->id),2)}} </td>
+							<td align="right"> {{ number_format($total,2)}} </td>
 						</tr>
 						<?php $count++ ?>
 						@endif	

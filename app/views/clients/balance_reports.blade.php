@@ -76,18 +76,18 @@
 
 <div class="row">
       <h5>AMOUNT RECEIVED TODAY</h5>
-      <!-- <p>
+      <p>
         AMOUNT RECEIVED: <strong>KES. {{ asMoney($total_payment->amount_paid) }}</strong> 
         = <strong>{{ round(($total_payment->amount_paid/$due)*100, 2) }}%</strong>
-      </p> -->
+      </p>
       <p>AMOUNT RECEIVABLE: <strong>KES. {{ asMoney($due) }}</strong></p>
     </div><br>
 
       <h5>AMOUNT RECEIVED IN THE LAST MONTH</h5>
-      <!-- <p>
+      <p>
         AMOUNT RECEIVED: <strong>KES. {{ asMoney($total_monthly->amount_paid) }}</strong> 
         = <strong>{{ round(($total_monthly->amount_paid/$due)*100, 2) }}%</strong>
-      </p> -->
+      </p>
       <p>AMOUNT RECEIVABLE: <strong>KES. {{ asMoney($due) }}</strong></p>
     </div>
   </div>
@@ -134,9 +134,13 @@
                 $due90Total = 0;
                 $due91Total = 0;
                 $dueTotal = 0;
+                $total = 0;
               ?>
   						@foreach($clients as $client)
   						@if(Client::due($client->id) > 0)
+              <?php
+              $total = Client::dueToday($client->id) + Client::due30($client->id) + Client::due60($client->id) + Client::due90($client->id) + Client::due91($client->id);
+              ?>
   						<tr class="body">
   							<td class="dum">{{ $count }}</td>
   							<td class="dum">{{ $client->name }}</td>
@@ -146,7 +150,7 @@
                 <td> {{ asMoney(Client::due60($client->id)) }} </td>
                 <td> {{ asMoney(Client::due90($client->id)) }} </td>
                 <td> {{ asMoney(Client::due91($client->id)) }} </td>
-  							<td> {{ asMoney(Client::due($client->id)) }} </td>
+  							<td> {{ asMoney($total) }} </td>
   						</tr>
   						<?php 
                 $count++;
@@ -155,7 +159,7 @@
                 $due60Total += Client::due60($client->id);
                 $due90Total += Client::due90($client->id);
                 $due91Total += Client::due91($client->id); 
-                $dueTotal += Client::due($client->id);
+                $dueTotal += $total;
               ?>
 						@endif	
 						@endforeach
