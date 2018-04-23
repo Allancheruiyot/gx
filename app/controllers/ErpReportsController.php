@@ -1416,6 +1416,7 @@ public function net(){
 
         $paid = DB::table('clients')
              ->join('payments','clients.id','=','payments.client_id')  
+             ->where('clients.type','=','Customer')  
              ->selectRaw('COALESCE(SUM(amount_paid),0) as due')
              ->pluck('due');
 
@@ -1428,7 +1429,15 @@ public function net(){
                     ->select(DB::raw('COALESCE(SUM(discount_amount),0) as discount_amount'))             
                     ->first();
 
-        $due = ($total_sales_todate)-($paid);
+
+        $clients = Client::where('type','Customer')->get();
+        $due = 0;
+
+        foreach($clients as $client){
+          $due = $due + Client::dueToday($client->id) + Client::due30($client->id) + Client::due60($client->id) + Client::due90($client->id) + Client::due91($client->id);
+        }
+
+        //$due = ($total_sales_todate)-($paid);
 
         $pdf = PDF::loadView('clients.balance_reports', compact('clients', 'total_payment', 'total_monthly', 'due'))->setPaper('a4', 'landscape');
         return $pdf->stream('Client Balances List.pdf');
