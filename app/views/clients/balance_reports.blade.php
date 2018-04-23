@@ -78,17 +78,17 @@
       <h5>AMOUNT RECEIVED TODAY</h5>
       <p>
         AMOUNT RECEIVED: <strong>KES. {{ asMoney($total_payment->amount_paid) }}</strong> 
-        = <strong>{{ round(($total_payment->amount_paid/$duecurrent)*100, 2) }}%</strong>
+        = <strong>{{ round(($total_payment->amount_paid/$due)*100, 2) }}%</strong>
       </p>
-      <p>AMOUNT RECEIVABLE: <strong>KES. {{ asMoney($duecurrent) }}</strong></p>
+      <p>AMOUNT RECEIVABLE: <strong>KES. {{ asMoney($due) }}</strong></p>
     </div><br>
 
       <h5>AMOUNT RECEIVED IN THE LAST MONTH</h5>
       <p>
         AMOUNT RECEIVED: <strong>KES. {{ asMoney($total_monthly->amount_paid) }}</strong> 
-        = <strong>{{ round(($total_monthly->amount_paid/$duelastmonth)*100, 2) }}%</strong>
+        = <strong>{{ round(($total_monthly->amount_paid/$due)*100, 2) }}%</strong>
       </p>
-      <p>AMOUNT RECEIVABLE: <strong>KES. {{ asMoney($duelastmonth) }}</strong></p>
+      <p>AMOUNT RECEIVABLE: <strong>KES. {{ asMoney($due) }}</strong></p>
     </div>
   </div>
   <hr>
