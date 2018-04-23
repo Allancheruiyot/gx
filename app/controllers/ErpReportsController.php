@@ -1434,7 +1434,9 @@ public function net(){
         $due = 0;
 
         foreach($clients as $client){
+        if(Client::due($client->id) > 0){
           $due = $due + Client::dueToday($client->id) + Client::due30($client->id) + Client::due60($client->id) + Client::due90($client->id) + Client::due91($client->id);
+        }
         }
 
         //$due = ($total_sales_todate)-($paid);
