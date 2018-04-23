@@ -1407,12 +1407,14 @@ public function net(){
 
         $total_sales_todate = DB::table('erporders')
                     ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')
-                    ->where('erporders.type','=','sales')                
+                    ->where('erporders.type','=','sales')    
+                    ->where('erporders.status','!=','cancelled')               
                     ->select(DB::raw('COALESCE(SUM(quantity*price),0) as total_sales'))               
                     ->first();
 
         $discount_amount_todate = DB::table('erporders')
-                    ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')               
+                    ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')     
+                    ->where('erporders.status','!=','cancelled')             
                     ->select(DB::raw('COALESCE(SUM(discount_amount),0) as discount_amount'))             
                     ->first();
 
