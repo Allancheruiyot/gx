@@ -1394,14 +1394,12 @@ public function net(){
         $total_payment= DB::table('payments')
                     ->join('clients', 'payments.client_id', '=', 'clients.id')
                     ->where('clients.type','=','Customer')
-                    ->where('payments.payment_date', date('Y-m-d'))
                     ->select(DB::raw('COALESCE(SUM(amount_paid),0) as amount_paid'))                
                     ->first();
 
         $total_monthly = DB::table('payments')
                     ->join('clients', 'payments.client_id', '=', 'clients.id')
                     ->where('clients.type','=','Customer')
-                    ->whereBetween('payments.payment_date', array(date('Y-m-d', strtotime('-1 month')), date('Y-m-d')))
                     ->select(DB::raw('COALESCE(SUM(amount_paid),0) as amount_paid'))                
                     ->first();
 

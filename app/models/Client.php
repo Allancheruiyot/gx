@@ -110,10 +110,15 @@ class Client extends \Eloquent {
    * BALANCES TODAY
    */
   public static function dueToday($id){
-      $today = date('Y-m-d');
+      
+      $from = date('Y-m-d 00:00:00');
+      $to = date('Y-m-d 23:59:59');
 
       $client = Client::find($id);
       $order = 0;
+
+      $fromdate = strtotime("-".($client->credit_period)." days", strtotime($from));
+      date("Y-m-d 00:00:00", $fromdate);
 
       if($client->type == 'Customer'){
          $order = DB::table('erporders')
@@ -122,7 +127,7 @@ class Client extends \Eloquent {
                  ->where('clients.id',$id)
                  ->where('erporders.type','=','sales')
                  ->where('erporders.status','!=','cancelled') 
-                 ->whereDate('erporders.created_at','=',$today)   
+                 ->whereBetween('erporders.created_at', array(date("Y-m-d 00:00:00", $fromdate), date("Y-m-d 23:59:59")))
                  ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
                  ->pluck('total');
       }
@@ -130,7 +135,7 @@ class Client extends \Eloquent {
           $order = DB::table('erporders')
                  ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
                  ->join('clients','erporders.client_id','=','clients.id')     
-                 ->whereDate('erporders.created_at','=',$today)         
+                 ->whereBetween('erporders.created_at', array(date("Y-m-d 00:00:00", $fromdate), date("Y-m-d 23:59:59")))     
                  ->where('clients.id',$id) ->selectRaw('SUM(price * quantity)as total')
                  ->pluck('total');
                
@@ -139,22 +144,32 @@ class Client extends \Eloquent {
       $paid = DB::table('clients')
              ->join('payments','clients.id','=','payments.client_id')
              ->where('clients.id',$id) 
-             ->where('payments.payment_date',$today)   
+             ->whereBetween('payments.payment_date',array(date("Y-m-d 00:00:00", $fromdate), date("Y-m-d 23:59:59"))) 
              ->selectRaw('COALESCE(SUM(amount_paid),0) as due')
              ->pluck('due');
 
+      if(($order-$paid) < 0){
+        return 0;
+      }else{
       return ($order-$paid);
+      }
   }
 
 /**
  * BALANCES <= 30 DAYS
  */
 public static function due30($id){
-      $from = date('Y-m-d 00:00:00', strtotime('-30 days'));
-      $to = date('Y-m-d 23:59:59', strtotime('-1 day'));
+      $from = date('Y-m-d 00:00:00');
+      $to = date('Y-m-d 23:59:59');
 
       $client = Client::find($id);
       $order = 0;
+
+      $fromdate = strtotime("+".($client->credit_period-30)." days", strtotime($from));
+      date("Y-m-d", $fromdate);
+
+      $todate = strtotime("+".($client->credit_period-1)." days", strtotime($to));
+      date("Y-m-d", $todate);
 
       if($client->type == 'Customer'){
          $order = DB::table('erporders')
@@ -163,7 +178,7 @@ public static function due30($id){
                  ->where('clients.id',$id)
                  ->where('erporders.type','=','sales')
                  ->where('erporders.status','!=','cancelled')  
-                 ->whereBetween('erporders.created_at', array($from, $to)) 
+                 ->whereBetween('erporders.created_at', array(date("Y-m-d 00:00:00", $fromdate), date("Y-m-d 23:59:59", $todate))) 
                  ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
                  ->pluck('total');
       }
@@ -171,7 +186,7 @@ public static function due30($id){
           $order = DB::table('erporders')
                  ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
                  ->join('clients','erporders.client_id','=','clients.id') 
-                 ->whereBetween('erporders.created_at', array($from, $to)) 
+                 ->whereBetween('erporders.created_at', array(date("Y-m-d 00:00:00", $fromdate), date("Y-m-d 23:59:59", $todate)))
                  ->where('clients.id',$id) ->selectRaw('SUM(price * quantity)as total')
                  ->pluck('total');
                
@@ -180,22 +195,32 @@ public static function due30($id){
       $paid = DB::table('clients')
              ->join('payments','clients.id','=','payments.client_id')
              ->where('clients.id',$id) 
-             ->whereBetween('payments.created_at', array($from, $to)) 
+             ->whereBetween('payments.created_at', array(date("Y-m-d 00:00:00", $fromdate), date("Y-m-d 23:59:59", $todate)))
              ->selectRaw('COALESCE(SUM(amount_paid),0) as due')
              ->pluck('due');
 
+      if(($order-$paid) < 0){
+        return 0;
+      }else{
       return ($order-$paid);
+      }
   }
 
   /**
    * BALANCES 31 <= 60
    */
   public static function due60($id){
-      $from = date('Y-m-d 00:00:00', strtotime('-60 days'));
-      $to   = date('Y-m-d 23:59:59', strtotime('-31 days'));
+      $from = date('Y-m-d 00:00:00');
+      $to   = date('Y-m-d 23:59:59');
 
       $client = Client::find($id);
       $order = 0;
+
+      $fromdate = strtotime("+".($client->credit_period-60)." days", strtotime($from));
+      date("Y-m-d", $fromdate);
+
+      $todate = strtotime("+".($client->credit_period-31)." days", strtotime($to));
+      date("Y-m-d", $todate);
 
       if($client->type == 'Customer'){
          $order = DB::table('erporders')
@@ -204,7 +229,7 @@ public static function due30($id){
                  ->where('clients.id',$id)
                  ->where('erporders.type','=','sales')
                  ->where('erporders.status','!=','cancelled')  
-                 ->whereBetween('erporders.created_at', array($from, $to)) 
+                 ->whereBetween('erporders.created_at', array(date("Y-m-d 00:00:00", $fromdate), date("Y-m-d 23:59:59", $todate))) 
                  ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
                  ->pluck('total');
       }
@@ -212,7 +237,7 @@ public static function due30($id){
           $order = DB::table('erporders')
                  ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
                  ->join('clients','erporders.client_id','=','clients.id')           
-                 ->whereBetween('erporders.created_at', array($from, $to)) 
+                 ->whereBetween('erporders.created_at', array(date("Y-m-d 00:00:00", $fromdate), date("Y-m-d 23:59:59", $todate)))
                  ->where('clients.id',$id) ->selectRaw('SUM(price * quantity)as total')
                  ->pluck('total');
                
@@ -221,11 +246,15 @@ public static function due30($id){
       $paid = DB::table('clients')
              ->join('payments','clients.id','=','payments.client_id')
              ->where('clients.id',$id) 
-             ->whereBetween('payments.created_at', array($from, $to)) 
+             ->whereBetween('payments.created_at', array(date("Y-m-d 00:00:00", $fromdate), date("Y-m-d 23:59:59", $todate)))
              ->selectRaw('COALESCE(SUM(amount_paid),0) as due')
              ->pluck('due');
 
+      if(($order-$paid) < 0){
+        return 0;
+      }else{
       return ($order-$paid);
+      }
   }
 
 
@@ -233,11 +262,17 @@ public static function due30($id){
    * BALANCES 61 <= 90
    */
   public static function due90($id){
-      $from = date('Y-m-d 00:00:00', strtotime('-90 days'));
-      $to = date('Y-m-d 23:59:59', strtotime('-61 days'));
+      $from = date('Y-m-d 00:00:00');
+      $to = date('Y-m-d 23:59:59');
 
       $client = Client::find($id);
       $order = 0;
+
+      $fromdate = strtotime("+".($client->credit_period-90)." days", strtotime($from));
+      date("Y-m-d 00:00:00", $fromdate);
+
+      $todate = strtotime("+".($client->credit_period-61)." days", strtotime($to));
+      date("Y-m-d 23:59:59", $todate);
 
       if($client->type == 'Customer'){
          $order = DB::table('erporders')
@@ -246,7 +281,7 @@ public static function due30($id){
                  ->where('clients.id',$id)
                  ->where('erporders.type','=','sales')
                  ->where('erporders.status','!=','cancelled') 
-                 ->whereBetween('erporders.created_at', array($from, $to))   
+                 ->whereBetween('erporders.created_at', array(date("Y-m-d 00:00:00", $fromdate), date("Y-m-d 23:59:59", $todate)))
                  ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
                  ->pluck('total');
       }
@@ -254,7 +289,7 @@ public static function due30($id){
           $order = DB::table('erporders')
                  ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
                  ->join('clients','erporders.client_id','=','clients.id')     
-                 ->whereBetween('erporders.created_at', array($from, $to))       
+                 ->whereBetween('erporders.created_at', array(date("Y-m-d 00:00:00", $fromdate), date("Y-m-d 23:59:59", $todate)))       
                  ->where('clients.id',$id) ->selectRaw('SUM(price * quantity)as total')
                  ->pluck('total');
                
@@ -263,11 +298,15 @@ public static function due30($id){
       $paid = DB::table('clients')
              ->join('payments','clients.id','=','payments.client_id')
              ->where('clients.id',$id) 
-             ->whereBetween('payments.created_at', array($from, $to)) 
+             ->whereBetween('payments.created_at', array(date("Y-m-d 00:00:00", $fromdate), date("Y-m-d 23:59:59", $todate))) 
              ->selectRaw('COALESCE(SUM(amount_paid),0) as due')
              ->pluck('due');
 
+      if(($order-$paid) < 0){
+        return 0;
+      }else{
       return ($order-$paid);
+      }
   }
 
 
@@ -275,10 +314,15 @@ public static function due30($id){
    * BALANCES >90
    */
   public static function due91($id){
-      $date = date('Y-m-d', strtotime('-90 days'));
+      $date90 = date('Y-m-d', strtotime('-90 days'));
 
       $client = Client::find($id);
       $order = 0;
+
+      $date = strtotime("+".($client->credit_period-90)." days", strtotime($date90));
+      date("Y-m-d", $date);
+
+
 
       if($client->type == 'Customer'){
          $order = DB::table('erporders')
@@ -287,7 +331,7 @@ public static function due30($id){
                  ->where('clients.id',$id)
                  ->where('erporders.type','=','sales')
                  ->where('erporders.status','!=','cancelled') 
-                 ->whereDate('erporders.created_at','<',$date)   
+                 ->whereDate('erporders.created_at','<',date("Y-m-d", $date))   
                  ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
                  ->pluck('total');
       }
@@ -295,7 +339,7 @@ public static function due30($id){
           $order = DB::table('erporders')
                  ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
                  ->join('clients','erporders.client_id','=','clients.id')     
-                 ->whereDate('erporders.created_at','<',$date)         
+                 ->whereDate('erporders.created_at','<',date("Y-m-d", $date))         
                  ->where('clients.id',$id) ->selectRaw('SUM(price * quantity)as total')
                  ->pluck('total');
                
@@ -304,11 +348,15 @@ public static function due30($id){
       $paid = DB::table('clients')
              ->join('payments','clients.id','=','payments.client_id')
              ->where('clients.id',$id) 
-             ->where('payments.payment_date','<',$date)   
+             ->where('payments.payment_date','<',date("Y-m-d", $date))   
              ->selectRaw('COALESCE(SUM(amount_paid),0) as due')
              ->pluck('due');
 
+      if(($order-$paid) < 0){
+        return 0;
+      }else{
       return ($order-$paid);
+      }
   }
 
 
