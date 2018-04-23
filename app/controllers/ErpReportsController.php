@@ -1409,6 +1409,7 @@ public function net(){
                      ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
                      ->join('clients','erporders.client_id','=','clients.id') 
                      ->where('erporders.type','=','sales')
+                     ->where('clients.type','=','Customer')  
                      ->where('erporders.status','!=','cancelled')   
                      ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
                      ->pluck('total');
