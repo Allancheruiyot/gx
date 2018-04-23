@@ -1405,28 +1405,37 @@ public function net(){
                     ->select(DB::raw('COALESCE(SUM(amount_paid),0) as amount_paid'))                
                     ->first();
 
-        $total_sales_todate = DB::table('erporders')
-                    ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')
-                    ->where('erporders.type','=','sales')    
-                    ->where('erporders.status','!=','cancelled')  
-                    ->join('clients', 'erporders.client_id', '=', 'clients.id')
-                    ->where('clients.type','=','Customer') 
-                    ->where('erporders.type','=','sales')            
-                    ->select(DB::raw('COALESCE(SUM(quantity*price),0) as total_sales'))               
-                    ->first();
+        $total_sales_current = DB::table('erporders')
+                     ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
+                     ->join('clients','erporders.client_id','=','clients.id') 
+                     ->where('erporders.type','=','sales')
+                     ->where('erporders.status','!=','cancelled')   
+                     ->whereDate('erporders.created_at', '=', date('Y-m-d'))
+                     ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
+                     ->pluck('total');
+
+        $total_sales_lastmonth = DB::table('erporders')
+                     ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
+                     ->join('clients','erporders.client_id','=','clients.id') 
+                     ->where('erporders.type','=','sales')
+                     ->where('erporders.status','!=','cancelled')   
+                     ->whereBetween('erporders.created_at', array(date('Y-m-d 00:00:00', strtotime('-1 month')), date('Y-m-d 23:59:59')))
+                     ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
+                     ->pluck('total');
 
         $discount_amount_todate = DB::table('erporders')
                     ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')     
                     ->where('erporders.status','!=','cancelled')  
                     ->join('clients', 'erporders.client_id', '=', 'clients.id')
                     ->where('clients.type','=','Customer')     
-                    ->where('erporders.type','=','sales')          
+                    ->where('erporders.type','=','sales')        
                     ->select(DB::raw('COALESCE(SUM(discount_amount),0) as discount_amount'))             
                     ->first();
 
-        $due = ($total_sales_todate->total_sales-$discount_amount_todate->discount_amount)-($total_payment->amount_paid);
+        $duecurrent = ($total_sales_current)-($total_payment->amount_paid);
+        $duelastmonth = ($total_sales_current)-($total_payment->amount_paid);
 
-        $pdf = PDF::loadView('clients.balance_reports', compact('clients', 'total_payment', 'total_monthly', 'due'))->setPaper('a4', 'landscape');
+        $pdf = PDF::loadView('clients.balance_reports', compact('clients', 'total_payment', 'total_monthly', 'duecurrent','duelastmonth'))->setPaper('a4', 'landscape');
         return $pdf->stream('Client Balances List.pdf');
 
         //return View::make('clients.balance_reports', compact('clients'));
