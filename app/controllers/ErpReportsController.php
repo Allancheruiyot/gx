@@ -1410,7 +1410,8 @@ public function net(){
                     ->where('erporders.type','=','sales')    
                     ->where('erporders.status','!=','cancelled')  
                     ->join('clients', 'erporders.client_id', '=', 'clients.id')
-                    ->where('clients.type','=','Customer')             
+                    ->where('clients.type','=','Customer') 
+                    ->where('erporders.type','=','sales')            
                     ->select(DB::raw('COALESCE(SUM(quantity*price),0) as total_sales'))               
                     ->first();
 
@@ -1418,7 +1419,8 @@ public function net(){
                     ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')     
                     ->where('erporders.status','!=','cancelled')  
                     ->join('clients', 'erporders.client_id', '=', 'clients.id')
-                    ->where('clients.type','=','Customer')               
+                    ->where('clients.type','=','Customer')     
+                    ->where('erporders.type','=','sales')          
                     ->select(DB::raw('COALESCE(SUM(discount_amount),0) as discount_amount'))             
                     ->first();
 
