@@ -2511,6 +2511,7 @@ public function sendMail_net(){
 
     $filePath = 'app/views/temp/';
 
+
     $clients = Client::where('type', 'Customer')->get();
 
         $total_payment= DB::table('payments')
@@ -2528,20 +2529,44 @@ public function sendMail_net(){
                     ->first();
 
         $total_sales_todate = DB::table('erporders')
-                    ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')
-                    ->where('erporders.type','=','sales')                
-                    ->select(DB::raw('COALESCE(SUM(quantity*price),0) as total_sales'))               
-                    ->first();
+                     ->join('erporderitems','erporders.id','=','erporderitems.erporder_id')
+                     ->join('clients','erporders.client_id','=','clients.id') 
+                     ->where('erporders.type','=','sales')
+                     ->where('clients.type','=','Customer')  
+                     ->where('erporders.status','!=','cancelled')   
+                     ->selectRaw('SUM(price * quantity)-COALESCE(SUM(discount_amount),0)- COALESCE(SUM(erporderitems.client_discount),0) + COALESCE(clients.balance,0)  as total')
+                     ->pluck('total');
+
+        $paid = DB::table('clients')
+             ->join('payments','clients.id','=','payments.client_id')  
+             ->where('clients.type','=','Customer')  
+             ->selectRaw('COALESCE(SUM(amount_paid),0) as due')
+             ->pluck('due');
 
         $discount_amount_todate = DB::table('erporders')
-                    ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')               
+                    ->join('erporderitems', 'erporders.id', '=', 'erporderitems.erporder_id')     
+                    ->where('erporders.status','!=','cancelled')  
+                    ->join('clients', 'erporders.client_id', '=', 'clients.id')
+                    ->where('clients.type','=','Customer')     
+                    ->where('erporders.type','=','sales')        
                     ->select(DB::raw('COALESCE(SUM(discount_amount),0) as discount_amount'))             
                     ->first();
 
-        $due = ($total_sales_todate->total_sales-$discount_amount_todate->discount_amount)-($total_payment->amount_paid);
+
+        $clients = Client::where('type','Customer')->get();
+        $due = 0;
+
+        foreach($clients as $client){
+        if(Client::due($client->id) > 0){
+          $due = $due + Client::dueToday($client->id) + Client::due30($client->id) + Client::due60($client->id) + Client::due90($client->id) + Client::due91($client->id);
+        }
+        }
+
+        //$due = ($total_sales_todate)-($paid);
 
         $pdf = PDF::loadView('clients.balance_reports', compact('clients', 'total_payment', 'total_monthly', 'due'))->setPaper('a4', 'landscape');
 
+    
     //return $pdf->stream('Sales Reports');
 
     $pdf->save($filePath.$fileName);
@@ -2557,7 +2582,7 @@ public function sendMail_net(){
 });
 
    unlink($filePath.$fileName);
-   echo 'Client Balances!';
+   echo 'Client Balances Report Sent!';
     return $send_mail;
     }
 
