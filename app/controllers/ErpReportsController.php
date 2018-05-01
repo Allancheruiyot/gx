@@ -1844,7 +1844,7 @@ public function net(){
     $send_mail = Mail::send('emails.welcome', array('key' => 'value'), function($message) use ($filePath,$fileName)
     {   
     $message->from('info@gx.co.ke', 'Gas Express');
-    $message->to('victor.kotonya@gx.co.ke', 'Victor Kotonya')->cc('victor.kotonya@gmail.com', 'Victor Kotonya')->cc('accounts@gx.co.ke', 'Vic Bett')->cc('chrispus.cheruiyot@lixnet.net', 'Crispus Cheruiyot')->cc('mikenyangare91@gmail.com', 'Mike Nyangare')->cc('basil.ochola@gmail.com', 'Basil Ochola')->cc('favourlex@gmail.com', 'Favour Lex')->subject('Daily Sales Report!');
+    $message->to('victor.kotonya@gx.co.ke', 'Victor Kotonya')->cc('victor.kotonya@gmail.com', 'Victor Kotonya')->cc('accounts@gx.co.ke', 'Vic Bett')->cc('mikenyangare91@gmail.com', 'Mike Nyangare')->subject('Daily Sales Report!');
     //$message->to('chrispus.cheruiyot@lixnet.net', 'Crispus Chevarvar')->subject('Daily Sales Report!');
     $message->attach($filePath.$fileName);
 
@@ -1937,7 +1937,7 @@ public function net(){
     $send_mail = Mail::send('emails.welcome', array('key' => 'value'), function($message) use ($filePath,$fileName)
     {   
     $message->from('info@gx.co.ke', 'Gas Express');
-    $message->to('victor.kotonya@gx.co.ke', 'Victor Kotonya')->cc('victor.kotonya@gmail.com', 'Victor Kotonya')->cc('accounts@gx.co.ke', 'Vic Bett')->cc('chrispus.cheruiyot@lixnet.net', 'Crispus Cheruiyot')->subject('Daily Sales Report!');
+    $message->to('victor.kotonya@gx.co.ke', 'Victor Kotonya')->cc('victor.kotonya@gmail.com', 'Victor Kotonya')->cc('accounts@gx.co.ke', 'Vic Bett')->cc('mikenyangare91@gmail.com', 'Mike Nyangare')->subject('Daily Sales Report!');
     $message->attach($filePath.$fileName);
 
     
